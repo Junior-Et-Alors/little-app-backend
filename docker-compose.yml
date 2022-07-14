@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  ###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-13}-alpine
+    container_name: database_little_app
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeMe}
+      POSTGRES_USER: ${POSTGRES_USER:-symfony}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+    networks:
+      - dev
+###< doctrine/doctrine-bundle ###
+
+  php:
+    build: docker/php
+    container_name: php_little_app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www
+    restart: always
+    networks:
+      - dev
+networks:
+  dev:
+
+volumes:
+  db-data:
